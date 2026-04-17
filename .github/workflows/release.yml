@@ -1,0 +1,164 @@
+name: Build and Release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag (e.g. v0.2.0)"
+        required: true
+        type: string
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            platform: macos
+            bundles: dmg
+          - os: windows-latest
+            platform: windows
+            bundles: msi,nsis
+          - os: ubuntu-22.04
+            platform: linux
+            bundles: appimage,deb
+
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && format('refs/tags/{0}', inputs.tag) || github.ref }}
+
+      - name: Resolve release tag
+        id: rel
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "release" ]]; then
+            TAG="${{ github.event.release.tag_name }}"
+          else
+            TAG="${{ inputs.tag }}"
+          fi
+          echo "value=$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install Linux system dependencies
+        if: matrix.platform == 'linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            libappindicator3-dev \
+            librsvg2-dev \
+            patchelf
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Import macOS signing certificate
+        if: matrix.platform == 'macos'
+        env:
+          MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE != '' && secrets.MACOS_CERTIFICATE || secrets.SWIFTPEN_MACOS_CERTIFICATE }}
+          MACOS_CERTIFICATE_PWD: ${{ secrets.MACOS_CERTIFICATE_PWD != '' && secrets.MACOS_CERTIFICATE_PWD || secrets.SWIFTPEN_MACOS_CERTIFICATE_PWD }}
+        shell: bash
+        run: |
+          if [[ -z "${MACOS_CERTIFICATE}" ]]; then
+            echo "No MACOS_CERTIFICATE provided. Build will continue unsigned."
+            exit 0
+          fi
+
+          CERT_FILE=$(mktemp /tmp/cert.XXXXXX.p12)
+          KEYCHAIN_FILE="/tmp/build-$$-$(date +%s).keychain-db"
+          KEYCHAIN_PWD=$(openssl rand -base64 32)
+
+          echo "$MACOS_CERTIFICATE" | base64 --decode > "$CERT_FILE"
+          curl -sL "https://www.apple.com/certificateauthority/DeveloperIDG2CA.cer" -o /tmp/DeveloperIDG2CA.cer
+
+          security create-keychain -p "$KEYCHAIN_PWD" "$KEYCHAIN_FILE"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_FILE"
+          security unlock-keychain -p "$KEYCHAIN_PWD" "$KEYCHAIN_FILE"
+
+          security import /tmp/DeveloperIDG2CA.cer -k "$KEYCHAIN_FILE" -T /usr/bin/codesign
+          security import "$CERT_FILE" -P "$MACOS_CERTIFICATE_PWD" -A -t cert -f pkcs12 -k "$KEYCHAIN_FILE"
+          security set-key-partition-list -S apple-tool:,apple: -k "$KEYCHAIN_PWD" "$KEYCHAIN_FILE"
+          security list-keychains -d user -s "$KEYCHAIN_FILE" $(security list-keychains -d user | tr -d '"')
+
+          IDENTITY=$(security find-identity -v -p codesigning "$KEYCHAIN_FILE" | grep "Developer ID Application" | head -1 | sed 's/.*"\(.*\)"/\1/')
+          echo "CODESIGN_IDENTITY=$IDENTITY" >> "$GITHUB_ENV"
+          echo "KEYCHAIN_FILE=$KEYCHAIN_FILE" >> "$GITHUB_ENV"
+
+          rm -f "$CERT_FILE" /tmp/DeveloperIDG2CA.cer
+
+      - name: Build Tauri app
+        env:
+          APPLE_SIGNING_IDENTITY: ${{ env.CODESIGN_IDENTITY }}
+          APPLE_ID: ${{ secrets.APPLE_ID != '' && secrets.APPLE_ID || secrets.SWIFTPEN_APPLE_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID != '' && secrets.APPLE_TEAM_ID || secrets.SWIFTPEN_APPLE_TEAM_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD != '' && secrets.APPLE_APP_PASSWORD || secrets.SWIFTPEN_APPLE_APP_PASSWORD }}
+        run: npm run tauri build -- --bundles ${{ matrix.bundles }}
+
+      - name: Upload macOS assets
+        if: matrix.platform == 'macos'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          shopt -s nullglob
+          FILES=(src-tauri/target/release/bundle/dmg/*.dmg)
+          if (( ${#FILES[@]} == 0 )); then
+            echo "::error::No DMG found in build output"
+            exit 1
+          fi
+          gh release upload "${{ steps.rel.outputs.value }}" "${FILES[@]}" --clobber
+
+      - name: Upload Windows assets
+        if: matrix.platform == 'windows'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          shopt -s nullglob
+          FILES=(src-tauri/target/release/bundle/msi/*.msi)
+          if (( ${#FILES[@]} == 0 )); then
+            echo "::error::No MSI found in build output"
+            exit 1
+          fi
+          gh release upload "${{ steps.rel.outputs.value }}" "${FILES[@]}" --clobber
+
+      - name: Upload Linux assets
+        if: matrix.platform == 'linux'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          shopt -s nullglob
+          APP_IMAGES=(src-tauri/target/release/bundle/appimage/*.AppImage)
+          DEBS=(src-tauri/target/release/bundle/deb/*.deb)
+          FILES=("${APP_IMAGES[@]}" "${DEBS[@]}")
+          if (( ${#FILES[@]} == 0 )); then
+            echo "::error::No Linux artifacts found in build output"
+            exit 1
+          fi
+          gh release upload "${{ steps.rel.outputs.value }}" "${FILES[@]}" --clobber
+
+      - name: Cleanup keychain
+        if: always() && matrix.platform == 'macos'
+        shell: bash
+        run: |
+          if [[ -n "${KEYCHAIN_FILE:-}" ]]; then
+            security delete-keychain "$KEYCHAIN_FILE" 2>/dev/null || true
+          fi

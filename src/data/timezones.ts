@@ -1,0 +1,217 @@
+import { GENERATED_TIMEZONE_ALIASES } from "./generated-timezone-aliases";
+import TIMEZONE_OVERRIDES from "./timezone-overrides.json";
+
+export interface TimezoneEntry {
+  id: string; // IANA timezone ID
+  label: string; // Friendly name
+  flag: string; // Flag emoji
+  aliases: string[]; // Search aliases
+}
+
+export const CURATED_TIMEZONE_LIST: TimezoneEntry[] = [
+  // Americas
+  { id: "Pacific/Honolulu", label: "Hawaii", flag: "🇺🇸", aliases: ["HST", "Honolulu"] },
+  { id: "America/Anchorage", label: "Alaska", flag: "🇺🇸", aliases: ["AKST", "AKDT", "Anchorage"] },
+  { id: "America/Los_Angeles", label: "Pacific", flag: "🇺🇸", aliases: ["PST", "PDT", "LA", "Los Angeles", "San Francisco", "Seattle", "West Coast"] },
+  { id: "America/Denver", label: "Mountain", flag: "🇺🇸", aliases: ["MST", "MDT", "Denver", "Phoenix"] },
+  { id: "America/Chicago", label: "Central", flag: "🇺🇸", aliases: ["CST", "CDT", "Chicago", "Dallas", "Houston"] },
+  { id: "America/New_York", label: "Eastern", flag: "🇺🇸", aliases: ["EST", "EDT", "New York", "NYC", "Boston", "Miami", "East Coast"] },
+  { id: "America/Halifax", label: "Atlantic", flag: "🇨🇦", aliases: ["AST", "ADT", "Halifax", "Nova Scotia"] },
+  { id: "America/St_Johns", label: "Newfoundland", flag: "🇨🇦", aliases: ["NST", "NDT", "St Johns"] },
+  { id: "America/Sao_Paulo", label: "São Paulo", flag: "🇧🇷", aliases: ["BRT", "Brazil", "Rio"] },
+  { id: "America/Argentina/Buenos_Aires", label: "Buenos Aires", flag: "🇦🇷", aliases: ["ART", "Argentina"] },
+  { id: "America/Mexico_City", label: "Mexico City", flag: "🇲🇽", aliases: ["Mexico"] },
+  { id: "America/Bogota", label: "Bogotá", flag: "🇨🇴", aliases: ["Colombia", "COT"] },
+  { id: "America/Lima", label: "Lima", flag: "🇵🇪", aliases: ["Peru", "PET"] },
+  { id: "America/Toronto", label: "Toronto", flag: "🇨🇦", aliases: ["Canada Eastern"] },
+  { id: "America/Vancouver", label: "Vancouver", flag: "🇨🇦", aliases: ["Canada Pacific"] },
+  { id: "America/Santiago", label: "Santiago", flag: "🇨🇱", aliases: ["Chile", "CLT"] },
+  { id: "America/Caracas", label: "Caracas", flag: "🇻🇪", aliases: ["Venezuela", "VET"] },
+  { id: "America/Montevideo", label: "Montevideo", flag: "🇺🇾", aliases: ["Uruguay", "UYT"] },
+  { id: "America/Asuncion", label: "Asunción", flag: "🇵🇾", aliases: ["Paraguay", "PYT"] },
+  { id: "America/La_Paz", label: "La Paz", flag: "🇧🇴", aliases: ["Bolivia", "BOT"] },
+  { id: "America/Guayaquil", label: "Guayaquil", flag: "🇪🇨", aliases: ["Ecuador", "ECT"] },
+
+  // Europe
+  { id: "Europe/London", label: "London", flag: "🇬🇧", aliases: ["GMT", "BST", "UK", "Britain", "England"] },
+  { id: "Europe/Paris", label: "Paris", flag: "🇫🇷", aliases: ["CET", "CEST", "France"] },
+  { id: "Europe/Berlin", label: "Berlin", flag: "🇩🇪", aliases: ["Germany"] },
+  { id: "Europe/Amsterdam", label: "Amsterdam", flag: "🇳🇱", aliases: ["Netherlands"] },
+  { id: "Europe/Madrid", label: "Madrid", flag: "🇪🇸", aliases: ["Spain"] },
+  { id: "Europe/Rome", label: "Rome", flag: "🇮🇹", aliases: ["Italy"] },
+  { id: "Europe/Zurich", label: "Zurich", flag: "🇨🇭", aliases: ["Switzerland"] },
+  { id: "Europe/Stockholm", label: "Stockholm", flag: "🇸🇪", aliases: ["Sweden"] },
+  { id: "Europe/Moscow", label: "Moscow", flag: "🇷🇺", aliases: ["MSK", "Russia"] },
+  { id: "Europe/Istanbul", label: "Istanbul", flag: "🇹🇷", aliases: ["Turkey", "TRT"] },
+  { id: "Europe/Athens", label: "Athens", flag: "🇬🇷", aliases: ["Greece", "EET", "EEST"] },
+  { id: "Europe/Warsaw", label: "Warsaw", flag: "🇵🇱", aliases: ["Poland"] },
+  { id: "Europe/Prague", label: "Prague", flag: "🇨🇿", aliases: ["Czech Republic", "Czechia", "CET"] },
+  { id: "Europe/Budapest", label: "Budapest", flag: "🇭🇺", aliases: ["Hungary", "CET"] },
+  { id: "Europe/Bucharest", label: "Bucharest", flag: "🇷🇴", aliases: ["Romania", "EET"] },
+  { id: "Europe/Kyiv", label: "Kyiv", flag: "🇺🇦", aliases: ["Ukraine", "Kiev", "EET"] },
+  { id: "Europe/Helsinki", label: "Helsinki", flag: "🇫🇮", aliases: ["Finland", "EET"] },
+  { id: "Europe/Oslo", label: "Oslo", flag: "🇳🇴", aliases: ["Norway", "CET"] },
+  { id: "Europe/Copenhagen", label: "Copenhagen", flag: "🇩🇰", aliases: ["Denmark", "CET"] },
+  { id: "Europe/Lisbon", label: "Lisbon", flag: "🇵🇹", aliases: ["Portugal", "WET"] },
+
+  // Middle East & Africa
+  { id: "Asia/Dubai", label: "Dubai", flag: "🇦🇪", aliases: ["GST", "UAE", "Abu Dhabi", "Gulf"] },
+  { id: "Asia/Riyadh", label: "Riyadh", flag: "🇸🇦", aliases: ["Saudi Arabia", "AST"] },
+  { id: "Asia/Jerusalem", label: "Jerusalem", flag: "🇮🇱", aliases: ["Israel", "IST", "Tel Aviv"] },
+  { id: "Asia/Gaza", label: "Gaza", flag: "🇵🇸", aliases: ["Palestine", "West Bank", "Ramallah", "EET"] },
+  { id: "Asia/Amman", label: "Amman", flag: "🇯🇴", aliases: ["Jordan", "EET"] },
+  { id: "Asia/Beirut", label: "Beirut", flag: "🇱🇧", aliases: ["Lebanon", "EET"] },
+  { id: "Asia/Baghdad", label: "Baghdad", flag: "🇮🇶", aliases: ["Iraq", "AST"] },
+  { id: "Asia/Kuwait", label: "Kuwait City", flag: "🇰🇼", aliases: ["Kuwait", "AST"] },
+  { id: "Asia/Qatar", label: "Doha", flag: "🇶🇦", aliases: ["Qatar", "AST"] },
+  { id: "Asia/Muscat", label: "Muscat", flag: "🇴🇲", aliases: ["Oman", "GST"] },
+  { id: "Asia/Bahrain", label: "Bahrain", flag: "🇧🇭", aliases: ["Manama"] },
+  { id: "Africa/Algiers", label: "Algiers", flag: "🇩🇿", aliases: ["Algeria", "CET"] },
+  { id: "Africa/Cairo", label: "Cairo", flag: "🇪🇬", aliases: ["Egypt", "EET"] },
+  { id: "Africa/Tunis", label: "Tunis", flag: "🇹🇳", aliases: ["Tunisia", "CET"] },
+  { id: "Africa/Casablanca", label: "Casablanca", flag: "🇲🇦", aliases: ["Morocco", "WET"] },
+  { id: "Africa/Khartoum", label: "Khartoum", flag: "🇸🇩", aliases: ["Sudan", "CAT"] },
+  { id: "Africa/Addis_Ababa", label: "Addis Ababa", flag: "🇪🇹", aliases: ["Ethiopia", "EAT"] },
+  { id: "Africa/Lagos", label: "Lagos", flag: "🇳🇬", aliases: ["Nigeria", "WAT"] },
+  { id: "Africa/Accra", label: "Accra", flag: "🇬🇭", aliases: ["Ghana", "GMT"] },
+  { id: "Africa/Johannesburg", label: "Johannesburg", flag: "🇿🇦", aliases: ["South Africa", "SAST"] },
+  { id: "Africa/Nairobi", label: "Nairobi", flag: "🇰🇪", aliases: ["Kenya", "EAT"] },
+  { id: "Africa/Dar_es_Salaam", label: "Dar es Salaam", flag: "🇹🇿", aliases: ["Tanzania", "EAT"] },
+  { id: "Africa/Luanda", label: "Luanda", flag: "🇦🇴", aliases: ["Angola", "WAT"] },
+
+  // Asia & Pacific
+  { id: "Asia/Kolkata", label: "Mumbai", flag: "🇮🇳", aliases: ["IST", "India", "Delhi", "Bangalore", "Chennai", "Calcutta"] },
+  { id: "Asia/Karachi", label: "Karachi", flag: "🇵🇰", aliases: ["Pakistan", "PKT"] },
+  { id: "Asia/Kabul", label: "Kabul", flag: "🇦🇫", aliases: ["Afghanistan", "AFT"] },
+  { id: "Asia/Dhaka", label: "Dhaka", flag: "🇧🇩", aliases: ["Bangladesh", "BST"] },
+  { id: "Asia/Yangon", label: "Yangon", flag: "🇲🇲", aliases: ["Myanmar", "Burma", "MMT"] },
+  { id: "Asia/Bangkok", label: "Bangkok", flag: "🇹🇭", aliases: ["Thailand", "ICT"] },
+  { id: "Asia/Ho_Chi_Minh", label: "Ho Chi Minh City", flag: "🇻🇳", aliases: ["Vietnam", "Hanoi", "ICT"] },
+  { id: "Asia/Phnom_Penh", label: "Phnom Penh", flag: "🇰🇭", aliases: ["Cambodia", "ICT"] },
+  { id: "Asia/Kuala_Lumpur", label: "Kuala Lumpur", flag: "🇲🇾", aliases: ["Malaysia", "MYT"] },
+  { id: "Asia/Singapore", label: "Singapore", flag: "🇸🇬", aliases: ["SGT"] },
+  { id: "Asia/Jakarta", label: "Jakarta", flag: "🇮🇩", aliases: ["Indonesia", "WIB"] },
+  { id: "Asia/Manila", label: "Manila", flag: "🇵🇭", aliases: ["Philippines", "PHT"] },
+  { id: "Asia/Hong_Kong", label: "Hong Kong", flag: "🇭🇰", aliases: ["HKT"] },
+  { id: "Asia/Shanghai", label: "Shanghai", flag: "🇨🇳", aliases: ["China", "CST", "Beijing", "Shenzhen"] },
+  { id: "Asia/Taipei", label: "Taipei", flag: "🇹🇼", aliases: ["Taiwan"] },
+  { id: "Asia/Seoul", label: "Seoul", flag: "🇰🇷", aliases: ["Korea", "KST"] },
+  { id: "Asia/Tokyo", label: "Tokyo", flag: "🇯🇵", aliases: ["Japan", "JST"] },
+  { id: "Australia/Sydney", label: "Sydney", flag: "🇦🇺", aliases: ["AEST", "AEDT", "Australia"] },
+  { id: "Australia/Melbourne", label: "Melbourne", flag: "🇦🇺", aliases: ["Victoria"] },
+  { id: "Australia/Perth", label: "Perth", flag: "🇦🇺", aliases: ["AWST", "Western Australia"] },
+  { id: "Pacific/Auckland", label: "Auckland", flag: "🇳🇿", aliases: ["NZST", "NZDT", "New Zealand"] },
+  { id: "Pacific/Fiji", label: "Fiji", flag: "🇫🇯", aliases: ["FJT"] },
+];
+
+function normalizeText(value: string): string {
+  return value.trim().replace(/\s+/g, " ");
+}
+
+function deriveZoneLabel(zoneId: string): string {
+  if (zoneId === "UTC" || zoneId === "Etc/UTC") return "UTC";
+  const parts = zoneId.split("/");
+  const lastSegment = parts[parts.length - 1] ?? zoneId;
+  return normalizeText(lastSegment.replace(/_/g, " "));
+}
+
+function deriveZoneAliases(zoneId: string): string[] {
+  const parts = zoneId.split("/");
+  const aliases = new Set<string>();
+
+  aliases.add(zoneId);
+  aliases.add(zoneId.replace(/\//g, " "));
+  aliases.add(zoneId.replace(/\//g, "_"));
+  aliases.add(deriveZoneLabel(zoneId));
+
+  for (const part of parts) {
+    aliases.add(part);
+    aliases.add(part.replace(/_/g, " "));
+  }
+
+  if (parts.length > 1) {
+    aliases.add(parts[parts.length - 1]?.replace(/_/g, " ") ?? zoneId);
+  }
+
+  return Array.from(aliases).filter(Boolean);
+}
+
+const CURATED_ZONE_MAP = new Map(CURATED_TIMEZONE_LIST.map((entry) => [entry.id, entry] as const));
+
+function buildZoneEntry(zoneId: string): TimezoneEntry {
+  const curated = CURATED_ZONE_MAP.get(zoneId);
+  const derivedAliases = new Set([
+    ...deriveZoneAliases(zoneId),
+    ...(GENERATED_TIMEZONE_ALIASES[zoneId] ?? []),
+    ...((TIMEZONE_OVERRIDES as Record<string, string[]>)[zoneId] ?? []),
+  ]);
+
+  if (curated) {
+    return {
+      ...curated,
+      aliases: Array.from(new Set([...curated.aliases, ...derivedAliases])),
+    };
+  }
+
+  return {
+    id: zoneId,
+    label: deriveZoneLabel(zoneId),
+    flag: "🌐",
+    aliases: Array.from(derivedAliases),
+  };
+}
+
+const LEGACY_TIMEZONE_ALIASES = [
+  "Asia/Kolkata",
+  "Asia/Calcutta",
+  "Asia/Dhaka",
+  "Asia/Karachi",
+  "Asia/Colombo",
+  "Europe/Moscow",
+  "Europe/Istanbul",
+];
+
+function getSupportedTimeZones(): string[] {
+  const intl = Intl as typeof Intl & {
+    supportedValuesOf?: (key: "timeZone") => string[];
+  };
+
+  const supported = typeof intl.supportedValuesOf === "function"
+    ? intl.supportedValuesOf("timeZone")
+    : CURATED_TIMEZONE_LIST.map((entry) => entry.id);
+
+  const zones = new Set([...supported, ...LEGACY_TIMEZONE_ALIASES]);
+  zones.add("UTC");
+  return Array.from(zones);
+}
+
+export const TIMEZONE_LIST = getSupportedTimeZones()
+  .map(buildZoneEntry)
+  .sort((a, b) => a.label.localeCompare(b.label) || a.id.localeCompare(b.id));
+
+export const POPULAR_ZONE_IDS = [
+  "America/Los_Angeles",
+  "America/Denver",
+  "America/Chicago",
+  "America/New_York",
+  "Europe/London",
+  "Europe/Paris",
+  "Europe/Berlin",
+  "Europe/Istanbul",
+  "Asia/Dubai",
+  "Asia/Kolkata",
+  "Asia/Singapore",
+  "Asia/Tokyo",
+  "Australia/Sydney",
+  "Pacific/Auckland",
+  "UTC",
+];
+
+export const DEFAULT_ZONES = [
+  { id: "America/Los_Angeles", label: "Pacific" },
+  { id: "America/New_York", label: "Eastern" },
+  { id: "Europe/London", label: "London" },
+  { id: "Asia/Dubai", label: "Dubai" },
+  { id: "Asia/Kolkata", label: "Mumbai" },
+  { id: "Asia/Singapore", label: "Singapore" },
+];

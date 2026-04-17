@@ -1,0 +1,84 @@
+@import "tailwindcss";
+
+html, body {
+  overflow: hidden;
+  background: transparent;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+  color: #e4e4e7;
+  -webkit-font-smoothing: antialiased;
+  font-size: 13px;
+}
+
+#root {
+  background: rgba(18, 18, 28, 0.94);
+  backdrop-filter: blur(24px) saturate(140%);
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.085);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.55), 0 0 0 0.5px rgba(255, 255, 255, 0.05);
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-3px); }
+  40%, 80% { transform: translateX(3px); }
+}
+
+.animate-shake {
+  animation: shake 0.25s ease-in-out;
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+}
+
+input[type="range"] {
+  -webkit-appearance: none;
+  background: rgba(255, 255, 255, 0.08);
+  height: 4px;
+  border-radius: 999px;
+  outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 13px;
+  height: 13px;
+  background: #4ade80;
+  border-radius: 50%;
+  border: 1.5px solid rgba(24, 24, 36, 0.9);
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* Bar window — floats in taskbar, no panel chrome */
+body.bar-window #root {
+  background: transparent;
+  border-radius: 0;
+  border: none;
+  box-shadow: none;
+  height: 100vh;
+}
+
+body.bar-window .bar-root {
+  /* rgba > 0 so Windows captures click events on transparent windows */
+  background: rgba(0, 0, 0, 0.01);
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+
+body.bar-window .bar-root:hover {
+  background: rgba(255, 255, 255, 0.08);
+}

@@ -1,0 +1,70 @@
+{
+  "Asia/Karachi": [
+    "Pakistan",
+    "Pakistani time",
+    "Lahore",
+    "Islamabad",
+    "Rawalpindi",
+    "Faisalabad",
+    "Multan",
+    "Peshawar",
+    "Quetta",
+    "Sialkot",
+    "Gujranwala",
+    "Hyderabad Pakistan",
+    "Sukkur"
+  ],
+  "Asia/Kolkata": [
+    "India",
+    "Indian time",
+    "Mumbai",
+    "Bombay",
+    "Delhi",
+    "New Delhi",
+    "Bengaluru",
+    "Bangalore",
+    "Chennai",
+    "Kolkata",
+    "Calcutta",
+    "Hyderabad India",
+    "Pune",
+    "Ahmedabad",
+    "Jaipur",
+    "Surat",
+    "Kanpur",
+    "Nagpur",
+    "Indore",
+    "Thane",
+    "Bhopal",
+    "Visakhapatnam"
+  ],
+  "Asia/Dubai": [
+    "United Arab Emirates",
+    "UAE",
+    "Abu Dhabi",
+    "Sharjah",
+    "Ajman",
+    "Ras Al Khaimah",
+    "Fujairah"
+  ],
+  "Europe/London": [
+    "United Kingdom",
+    "Great Britain",
+    "Britain",
+    "England",
+    "Scotland",
+    "Wales",
+    "Northern Ireland"
+  ],
+  "America/New_York": [
+    "United States Eastern",
+    "US Eastern",
+    "New York City",
+    "Washington DC",
+    "Philadelphia",
+    "Atlanta",
+    "Orlando",
+    "Boston",
+    "Miami"
+  ]
+}
